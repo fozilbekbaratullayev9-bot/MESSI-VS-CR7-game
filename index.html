@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<!-- saved from url=(0126)file:///C:/Users/user/Desktop/Activation/%D0%9D%D0%BE%D0%B2%D0%B0%D1%8F%20%D0%BF%D0%B0%D0%BF%D0%BA%D0%B0%20(4)/Untitled-1.html -->
+<html lang="uz"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messi vs Ronaldo - Fair Play Edition</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #111;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #start-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(17, 17, 17, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        #start-btn {
+            background: linear-gradient(45deg, #00a2ff, #ff3737);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255,255,255,0.2);
+            transition: transform 0.2s;
+        }
+
+        #start-btn:hover {
+            transform: scale(1.1);
+        }
+
+        #scoreboard {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: #222;
+            padding: 10px 40px;
+            border-radius: 30px;
+            border: 3px solid #333;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        #messi-score { color: #00a2ff; }
+        #ronaldo-score { color: #ff3737; }
+
+        #field {
+            width: 800px;
+            height: 450px;
+            background-color: #27ae60;
+            position: relative;
+            border: 5px solid white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        #center-line {
+            position: absolute;
+            left: 50%; top: 0; width: 2px; height: 100%;
+            background-color: rgba(255, 255, 255, 0.6);
+        }
+
+        #center-circle {
+            position: absolute;
+            left: 50%; top: 50%; width: 130px; height: 130px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .goal {
+            position: absolute;
+            width: 20px;
+            height: 140px;
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 3px solid white;
+            top: 155px;
+        }
+        #left-goal { left: -20px; border-right: none; }
+        #right-goal { right: -20px; border-left: none; }
+
+        .player {
+            position: absolute;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            border: 3px solid white;
+        }
+
+        #messi { background-color: #0072ff; color: white; }
+        #ronaldo { background-color: #ff3737; color: white; }
+
+        #ball {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background-color: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+            background-image: radial-gradient(circle, #fff 60%, #333 100%);
+        }
+
+        #controls-panel {
+            margin-top: 15px;
+            display: flex;
+            gap: 40px;
+            font-size: 13px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 12px 25px;
+            border-radius: 10px;
+            border: 1px solid #444;
+        }
+        
+        .p1-color { color: #00a2ff; font-weight: bold; }
+        .p2-color { color: #ff3737; font-weight: bold; }
+        kbd {
+            background: #444;
+            padding: 2px 5px;
+            border-radius: 3px;
+            border: 1px solid #666;
+            font-family: monospace;
+        }
+
+        /* Salut (Fireworks) animatsiyasi uchun zarralar */
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen" style="display: flex;">
+        <h1 style="font-size: 42px; margin-bottom: 20px; text-shadow: 0 5px 10px rgba(0,0,0,0.5);">MESSI VS RONALDO</h1>
+        <p style="color: #aaa; margin-bottom: 30px;">10 ta gol urgan g'olib bo'ladi!</p>
+        <button id="start-btn" onclick="startGame()">O'yinni Boshlash</button>
+    </div>
+
+    <div id="scoreboard">
+        <span id="messi-score">0</span> (MESSI) : <span id="ronaldo-score">0</span> (RONALDO)
+    </div>
+
+    <div id="field">
+        <div id="center-line"></div>
+        <div id="center-circle"></div>
+        <div id="left-goal" class="goal"></div>
+        <div id="right-goal" class="goal"></div>
+        
+        <div id="messi" class="player" style="left: 150px; top: 204px;">M10</div>
+        <div id="ronaldo" class="player" style="left: 750px; top: 204px;">CR7</div>
+
+        <div id="ball" style="left: 391px; top: 216px;"></div>
+    </div>
+
+    <div id="controls-panel">
+        <div>
+            <span class="p1-color">🇦🇷 MESSI:</span><br>
+            Yurish: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd><br>
+            Zarba: <kbd>F</kbd> | Olib qo'yish: <kbd>G</kbd>
+        </div>
+        <div>
+            <span class="p2-color">🇵🇹 RONALDO:</span><br>
+            Yurish: <kbd>↑</kbd> <kbd>←</kbd> <kbd>↓</kbd> <kbd>→</kbd><br>
+            Udar: <kbd>M</kbd> | Olib qo'yish: <kbd>/</kbd>
+        </div>
+    </div>
+
+    <script>
+        const ball = document.getElementById('ball');
+        const mScoreDisplay = document.getElementById('messi-score');
+        const rScoreDisplay = document.getElementById('ronaldo-score');
+        const startScreen = document.getElementById('start-screen');
+
+        const p1 = { el: document.getElementById('messi'), x: 150, y: 204, radius: 21, lastXDir: 1, lastYDir: 0 };
+        const p2 = { el: document.getElementById('ronaldo'), x: 610, y: 204, radius: 21, lastXDir: -1, lastYDir: 0 };
+
+        let mScore = 0, rScore = 0;
+        let ballX = 391, ballY = 216;
+        let ballSpeedX = 0, ballSpeedY = 0;
+        let ballOwner = null;
+        let gameActive = false;
+        
+        const friction = 0.96;
+        
+        // --- MUTLAQO TENG HUQUQLI STATISTIKA ---
+        const baseSpeed = 5.0;     // Ikkalasi ham bir xil tezlikda yuradi
+        const baseShotPower = 15;  // Ikkalasining ham zarba kuchi teng
+
+        const ballRadius = 9;
+        const keys = {};
+
+        function startGame() {
+            startScreen.style.display = 'none';
+            gameActive = true;
+            resetPositions();
+            update();
+        }
+
+        window.addEventListener('keydown', e => {
+            if (!gameActive) return;
+            const keyLower = e.key.toLowerCase();
+            keys[keyLower] = true;
+            
+            if (keyLower === 'f' && ballOwner === 'p1') shoot('p1');
+            if (keyLower === 'm' && ballOwner === 'p2') shoot('p2');
+
+            if (keyLower === 'g') trySteal('p1', p2, 60);
+            if (keyLower === '/') trySteal('p2', p1, 60); 
+        });
+        window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+        function shoot(owner) {
+            const player = owner === 'p1' ? p1 : p2;
+            ballSpeedX = player.lastXDir * baseShotPower;
+            ballSpeedY = player.lastYDir * baseShotPower;
+            
+            if(ballSpeedX === 0 && ballSpeedY === 0) {
+                ballSpeedX = owner === 'p1' ? baseShotPower : -baseShotPower;
+            }
+            ballOwner = null;
+        }
+
+        function trySteal(stealer, victim, maxDist) {
+            let sCenterX = stealer === 'p1' ? p1.x + p1.radius : p2.x + p2.radius;
+            let sCenterY = stealer === 'p1' ? p1.y + p1.radius : p2.y + p2.radius;
+            let vCenterX = stealer === 'p1' ? p2.x + p2.radius : p1.x + p1.radius;
+            let vCenterY = stealer === 'p1' ? p2.y + p2.radius : p1.y + p1.radius;
+
+            let dist = Math.hypot(sCenterX - vCenterX, sCenterY - vCenterY);
+
+            if (dist < maxDist && ballOwner === (stealer === 'p1' ? 'p2' : 'p1')) {
+                ballOwner = stealer;
+            }
+        }
+
+        // SALUT EFFEKTI FUNKSIYASI
+        function createFirework() {
+            for (let i = 0; i < 100; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Tasodifiy ranglar va joylashuv
+                particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                particle.style.left = Math.random() * window.innerWidth + 'px';
+                particle.style.top = Math.random() * window.innerHeight + 'px';
+                
+                document.body.appendChild(particle);
+
+                // Tasodifiy harakat yo'nalishi
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 8 + 2;
+                let pX = 0;
+                let pY = 0;
+
+                let animation = setInterval(() => {
+                    pX += Math.cos(angle) * velocity;
+                    pY += Math.sin(angle) * velocity + 0.2; // og'irlik kuchi effekti
+                    particle.style.transform = `translate(${pX}px, ${pY}px)`;
+                }, 16);
+
+                setTimeout(() => {
+                    clearInterval(animation);
+                    particle.remove();
+                }, 1500);
+            }
+        }
+
+        // OVOZ CHIQARISH FUNKSIYASI
+        function playNiggaAudio(winnerName) {
+            if ('speechSynthesis' in window) {
+                const text = `${winnerName} win. nigga.`;
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9; // Biroz sekinroq va aniqroq talaffuz
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function checkGameOver() {
+            if (mScore >= 10 || rScore >= 10) {
+                gameActive = false;
+                const winner = mScore >= 10 ? "MESSI" : "RONALDO";
+                
+                // Salutlarni otish (3 marta ketma-ket)
+                createFirework();
+                let fireworkInterval = setInterval(createFirework, 400);
+                setTimeout(() => clearInterval(fireworkInterval), 2000);
+
+                // Ovozli xabar
+                playNiggaAudio(winner);
+
+                setTimeout(() => {
+                    alert(`${winner} G'ALABA QOZONDI!`);
+                    mScore = 0; rScore = 0;
+                    mScoreDisplay.textContent = 0; rScoreDisplay.textContent = 0;
+                    startScreen.style.display = 'flex';
+                }, 2500);
+            }
+        }
+
+        function update() {
+            if (!gameActive) return;
+
+            let p1Dx = 0, p1Dy = 0;
+            let p2Dx = 0, p2Dy = 0;
+
+            if (keys['w']) p1Dy = -baseSpeed;
+            if (keys['s']) p1Dy = baseSpeed;
+            if (keys['a']) p1Dx = -baseSpeed;
+            if (keys['d']) p1Dx = baseSpeed;
+
+            if (keys['arrowup']) p2Dy = -baseSpeed;
+            if (keys['arrowdown']) p2Dy = baseSpeed;
+            if (keys['arrowleft']) p2Dx = -baseSpeed;
+            if (keys['arrowright']) p2Dx = baseSpeed;
+
+            if (p1Dx !== 0 || p1Dy !== 0) {
+                let len = Math.hypot(p1Dx, p1Dy);
+                p1.lastXDir = p1Dx / len; p1.lastYDir = p1Dy / len;
+            }
+            if (p2Dx !== 0 || p2Dy !== 0) {
+                let len = Math.hypot(p2Dx, p2Dy);
+                p2.lastXDir = p2Dx / len; p2.lastYDir = p2Dy / len;
+            }
+
+            p1.x += p1Dx; p1.y += p1Dy;
+            p2.x += p2Dx; p2.y += p2Dy;
+
+            [p1, p2].forEach(p => {
+                if (p.x < 0) p.x = 0; if (p.x > 758) p.x = 758;
+                if (p.y < 0) p.y = 0; if (p.y > 408) p.y = 408;
+                p.el.style.left = p.x + 'px'; p.el.style.top = p.y + 'px';
+            });
+
+            if (ballOwner === 'p1') {
+                ballX = p1.x + p1.radius - ballRadius + (p1.lastXDir * 22);
+                ballY = p1.y + p1.radius - ballRadius + (p1.lastYDir * 22);
+                ballSpeedX = 0; ballSpeedY = 0;
+            } else if (ballOwner === 'p2') {
+                ballX = p2.x + p2.radius - ballRadius + (p2.lastXDir * 22);
+                ballY = p2.y + p2.radius - ballRadius + (p2.lastYDir * 22);
+                ballSpeedX = 0; ballSpeedY = 0;
+            } else {
+                ballX += ballSpeedX; ballY += ballSpeedY;
+                ballSpeedX *= friction; ballSpeedY *= friction;
+
+                if (ballY <= 0) { ballY = 0; ballSpeedY = -ballSpeedY; }
+                if (ballY >= 432) { ballY = 432; ballSpeedY = -ballSpeedY; }
+
+                let bCX = ballX + ballRadius; let bCY = ballY + ballRadius;
+                let d1 = Math.hypot((p1.x + p1.radius) - bCX, (p1.y + p1.radius) - bCY);
+                let d2 = Math.hypot((p2.x + p2.radius) - bCX, (p2.y + p2.radius) - bCY);
+
+                if (d1 < p1.radius + ballRadius + 5) ballOwner = 'p1';
+                else if (d2 < p2.radius + ballRadius + 5) ballOwner = 'p2';
+            }
+
+            if (ballX <= 0) {
+                if (ballY >= 155 && ballY <= 295) {
+                    rScore++; rScoreDisplay.textContent = rScore; resetPositions(); checkGameOver();
+                } else {
+                    ballX = 0; ballSpeedX = -ballSpeedX;
+                }
+            }
+            if (ballX >= 782) {
+                if (ballY >= 155 && ballY <= 295) {
+                    mScore++; mScoreDisplay.textContent = mScore; resetPositions(); checkGameOver();
+                } else {
+                    ballX = 782; ballSpeedX = -ballSpeedX;
+                }
+            }
+
+            ball.style.left = ballX + 'px';
+            ball.style.top = ballY + 'px';
+
+            if (gameActive) requestAnimationFrame(update);
+        }
+
+        function resetPositions() {
+            ballX = 391; ballY = 216;
+            ballSpeedX = 0; ballSpeedY = 0;
+            ballOwner = null;
+            p1.x = 150; p1.y = 204; p1.lastXDir = 1; p1.lastYDir = 0;
+            p2.x = 610; p2.y = 204; p2.lastXDir = -1; p2.lastYDir = 0;
+        }
+    </script>
+
+</body></html>
