@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messi vs Ronaldo - Ultimate Multi-Mode Edition</title>
+    <style>
+        body {
+            margin: 0; padding: 0;
+            background-color: #0a0a0a;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; color: white; overflow: hidden; position: relative;
+        }
+
+        /* SAHIFALAR - MENYULAR */
+        .overlay-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(20,20,20,0.98) 0%, rgba(5,5,5,1) 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 100; will-change: display;
+        }
+
+        .menu-box {
+            background: #151a21; 
+            border: 4px solid #f1c40f;
+            padding: 35px; border-radius: 20px; text-align: center;
+            box-shadow: 0 0 35px rgba(241, 196, 15, 0.25), inset 0 0 20px rgba(0,0,0,0.6); 
+            max-width: 700px; width: 90%;
+            position: relative;
+        }
+
+        .btn {
+            background: #27ae60; color: white; border: none;
+            padding: 14px 28px; font-size: 15px; font-weight: bold;
+            border-radius: 8px; cursor: pointer; margin: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn:hover { background: #2ecc71; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(46,204,113,0.4); }
+        .btn-blue { background: #2980b9; } .btn-blue:hover { background: #3498db; box-shadow: 0 6px 12px rgba(52,152,219,0.4); }
+        .btn-red { background: #c0392b; } .btn-red:hover { background: #e74c3c; box-shadow: 0 6px 12px rgba(231,76,60,0.4); }
+        .btn-purple { background: #8e44ad; } .btn-purple:hover { background: #9b59b6; box-shadow: 0 6px 12px rgba(155,89,182,0.4); }
+        .btn-gold { 
+            background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); 
+            color: #111; 
+            border: 2px solid #fff;
+        } 
+        .btn-gold:hover { 
+            background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); 
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.6);
+        }
+
+        /* MARKET MATRIX GID */
+        .market-grid { display: flex; gap: 20px; margin-bottom: 20px; justify-content: center; }
+        .market-column {
+            background: #090d12; padding: 15px; border-radius: 12px;
+            width: 300px; max-height: 350px; overflow-y: auto;
+            border: 2px solid #2c3e50;
+        }
+        .skin-card {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #1c242c; padding: 10px; margin: 8px 0; border-radius: 10px;
+            border: 2px solid #34495e; transition: all 0.2s;
+        }
+        .skin-card:hover { border-color: #f1c40f; background: #222d38; }
+        .skin-preview {
+            width: 28px; height: 28px; display: inline-block;
+            vertical-align: middle; margin-right: 10px; border-radius: 6px;
+            border: 2px solid #fff; position: relative;
+        }
+
+        /* SCOREBOARD ULTRA */
+        #scoreboard {
+            font-size: 28px; font-weight: 900; margin-bottom: 15px;
+            background: linear-gradient(180deg, #1e1e1e 0%, #111 100%); 
+            padding: 8px 40px; border-radius: 30px;
+            border: 3px solid #f1c40f; 
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.4);
+            letter-spacing: 2px;
+        }
+        #game-mode-indicator {
+            font-size: 14px; color: #f1c40f; text-align: center; margin-top: -10px; margin-bottom: 10px; font-weight: bold; text-transform: uppercase;
+        }
+
+        /* STADIUM GAME FIELD */
+        #field {
+            width: 800px; height: 450px; 
+            background: #1e5622;
+            background-image: radial-gradient(#2e7d32 60%, #1b5e20 100%);
+            position: relative; border: 6px solid #ffffff; border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8), 0 0 50px rgba(46, 125, 50, 0.3);
+            overflow: visible;
+        }
+        #center-line { position: absolute; left: 50%; top: 0; width: 4px; height: 100%; background: rgba(255,255,255,0.6); }
+        #center-circle { position: absolute; left: 50%; top: 50%; width: 130px; height: 130px; border: 4px solid rgba(255,255,255,0.6); border-radius: 50%; transform: translate(-50%, -50%); }
+        .goal { position: absolute; width: 20px; height: 140px; background: rgba(255,255,255,0.2); border: 4px solid white; top: 155px; z-index: 5; }
+        #left-goal { left: -24px; border-right: none; } 
+        #right-goal { right: -24px; border-left: none; }
+
+        /* MULTI-EFFECTS & CROWN SYSTEM */
+        .player-wrapper {
+            position: absolute; width: 46px; height: 46px;
+            will-change: transform; transition: none;
+            z-index: 10; display: flex; align-items: center; justify-content: center;
+        }
+
+        .player {
+            width: 100%; height: 100%;
+            border-radius: 8px; display: flex; flex-direction: column;
+            align-items: center; justify-content: flex-end;
+            font-weight: bold; font-size: 12px; font-family: monospace;
+            text-shadow: 2px 2px 2px #000; box-sizing: border-box;
+            position: relative; padding-bottom: 4px;
+            border: 3.5px solid #f1c40f;
+            box-shadow: 0 0 15px #f1c40f, inset 0 0 10px rgba(0,0,0,0.8);
+            animation: glowPulse 1.5s infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 10px #f1c40f, inset 0 0 5px rgba(0,0,0,0.8); border-color: #f39c12; }
+            100% { box-shadow: 0 0 22px #f1c40f, 0 0 8px rgba(255,255,255,0.5), inset 0 0 12px rgba(0,0,0,0.9); border-color: #fff; }
+        }
+        
+        .crown-container {
+            position: absolute; top: -26px; left: 50%; transform: translateX(-50%);
+            font-size: 24px; line-height: 1; z-index: 20; pointer-events: none;
+            animation: crownLevitate 1.2s ease-in-out infinite alternate;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6)) drop-shadow(0 0 8px #f1c40f);
+        }
+
+        @keyframes crownLevitate {
+            0% { transform: translateX(-50%) translateY(0) scale(1); }
+            100% { transform: translateX(-50%) translateY(-5px) scale(1.08); }
+        }
+        
+        .player-eyes {
+            position: absolute; top: 12px; left: 0; width: 100%; text-align: center;
+            font-size: 11px; letter-spacing: 3px; color: #fff;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        /* KLASSIK TO'P */
+        #ball {
+            position: absolute; width: 20px; height: 20px;
+            background-color: #ffffff; border-radius: 50%;
+            border: 2px solid #111; will-change: transform;
+            background-image: radial-gradient(circle at 35% 35%, #fff 20%, #bbb 60%, #777 100%);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.6); z-index: 15;
+        }
+
+        /* GOL NISHONLASH EFFEKTI */
+        #goal-flash {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 215, 0, 0.4); z-index: 80;
+            display: none; align-items: center; justify-content: center;
+            font-size: 70px; font-weight: 900; color: #fff;
+            text-shadow: 0 0 30px #f39c12, 0 0 60px #f1c40f;
+            animation: flashAnim 0.5s ease-out; pointer-events: none;
+        }
+
+        @keyframes flashAnim {
+            0% { opacity: 0; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0; transform: scale(1); }
+        }
+
+        #controls-panel {
+            margin-top: 15px; display: flex; gap: 40px; font-size: 13px;
+            background: rgba(10,15,20,0.85); padding: 10px 20px; border-radius: 10px;
+            border: 2px solid #232d38;
+        }
+        kbd { background: #334155; padding: 3px 6px; border-radius: 4px; font-family: monospace; color: #f1c40f;}
+        input[type="password"] { padding: 10px; font-size: 15px; border-radius: 6px; border: 2px solid #455a64; background: #0b0f12; color: white; text-align: center; width: 80%; }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen" class="overlay-screen">
+        <div class="menu-box">
+            <h1 style="color: #f1c40f; margin: 0 0 5px 0; font-size: 36px; text-shadow: 0 0 15px rgba(241,196,15,0.5);">👑 VIP MESSI VS RONALDO 👑</h1>
+            <p style="color: #a0aec0; margin: 0 0 25px 0; font-weight: 500;">Dual Mode: Friends Multiplay & AI Smart Bot</p>
+            
+            <div style="display: flex; flex-direction: column; max-width: 400px; margin: 0 auto;">
+                <button class="btn btn-gold" onclick="startGameMode('pvp')">👥 Do'st bilan o'ynash (2 Player)</button>
+                <button class="btn btn-purple" onclick="startGameMode('bot')">🤖 Bot bilan o'ynash (Noob Bot Rejimi)</button>
+                <div style="display: flex; justify-content: center; width: 100%;">
+                    <button class="btn btn-blue" style="flex: 1;" onclick="openMarket()">🛒 VIP Market</button>
+                    <button class="btn btn-red" style="flex: 1;" onclick="openAdminAuth()">🛠️ Admin</button>
+                </div>
+            </div>
+            
+            <p style="color: #f1c40f; font-size: 18px; font-weight: bold; margin-top: 20px; background: rgba(0,0,0,0.4); padding: 8px; border-radius: 10px; display: inline-block;">
+                M10: <span id="menu-p1-coins" style="color:#fff">0</span> 🪙 | CR7: <span id="menu-p2-coins" style="color:#fff">0</span> 🪙
+            </p>
+        </div>
+    </div>
+
+    <div id="market-screen" class="overlay-screen" style="display: none;">
+        <div class="menu-box">
+            <h2 style="color: #f1c40f; margin-top: 0; font-size: 28px;">👑 ELITE SKIN SUPERMARKET</h2>
+            <div class="market-grid">
+                <div class="market-column">
+                    <h4 style="color: #00a2ff; margin: 0 0 12px 0;">🇦🇷 Messi Premium</h4>
+                    <div id="p1-shop-list"></div>
+                </div>
+                <div class="market-column">
+                    <h4 style="color: #ff3737; margin: 0 0 12px 0;">🇵🇹 Ronaldo Premium</h4>
+                    <div id="p2-shop-list"></div>
+                </div>
+            </div>
+            <button class="btn btn-red" onclick="backToMenu()">Orqaga Qaytish</button>
+        </div>
+    </div>
+
+    <div id="admin-auth-screen" class="overlay-screen" style="display: none;">
+        <div class="menu-box" style="max-width: 420px;">
+            <h3 style="color: #e74c3c;">🛠️ Admin Tizimi</h3>
+            <input type="password" id="admin-code-input" placeholder="Kodni kiriting...">
+            <br><br>
+            <button class="btn" onclick="checkAdminCode()">Kirish</button>
+            <button class="btn btn-red" onclick="backToMenu()">Bekor Qilish</button>
+        </div>
+    </div>
+
+    <div id="admin-panel-screen" class="overlay-screen" style="display: none;">
+        <div class="menu-box" style="max-width: 420px;">
+            <h2 style="color: #e74c3c; margin: 0;">⚡ MULTI-CHEAT PANEL</h2>
+            <p style="color: #2ecc71; font-weight: bold;">Tizim faol (somsa).</p>
+            <button class="btn btn-blue" onclick="hackCoins('p1')">Messi +1,000 Tanga</button>
+            <button class="btn btn-red" onclick="hackCoins('p2')">Ronaldo +1,000 Tanga</button>
+            <br><br>
+            <button class="btn btn-gold" onclick="backToMenu()">Yopish</button>
+        </div>
+    </div>
+
+    <div id="scoreboard">
+        <span id="messi-score" style="color: #00a2ff;">0</span> : <span id="ronaldo-score" style="color: #ff3737;">0</span>
+    </div>
+    <div id="game-mode-indicator">REJIM: 2 PLAYER</div>
+
+    <div id="field">
+        <div id="center-line"></div>
+        <div id="center-circle"></div>
+        <div id="left-goal" class="goal"></div>
+        <div id="right-goal" class="goal"></div>
+        
+        <div id="goal-flash">GOAL!</div>
+        
+        <div id="messi-wrapper" class="player-wrapper">
+            <div class="crown-container">👑</div>
+            <div id="messi" class="player"><div class="player-eyes">■ ■</div>M10</div>
+        </div>
+        
+        <div id="ronaldo-wrapper" class="player-wrapper">
+            <div class="crown-container">👑</div>
+            <div id="ronaldo" class="player"><div class="player-eyes">■ ■</div>CR7</div>
+        </div>
+
+        <div id="ball"></div>
+    </div>
+
+    <div id="controls-panel">
+        <div id="p1-controls"><span style="color:#00a2ff; font-weight:bold;">M10:</span> <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> | Zarb: <kbd>F</kbd> | Olish: <kbd>G</kbd></div>
+        <button class="btn btn-red" style="padding: 4px 12px; margin: 0; font-size: 12px;" onclick="quitGame()">Chiqish</button>
+        <div id="p2-controls"><span style="color:#ff3737; font-weight:bold;">CR7:</span> <kbd>↑</kbd><kbd>←</kbd><kbd>↓</kbd><kbd>→</kbd> | Zarb: <kbd>M</kbd> | Olish: <kbd>/</kbd></div>
+    </div>
+
+    <script>
+        const p1Wrap = document.getElementById('messi-wrapper');
+        const p2Wrap = document.getElementById('ronaldo-wrapper');
+        const p1El = document.getElementById('messi');
+        const p2El = document.getElementById('ronaldo');
+
+        const p1 = { x: 120, y: 205, radius: 23, lastXDir: 1, lastYDir: 0 };
+        const p2 = { x: 640, y: 205, radius: 23, lastXDir: -1, lastYDir: 0 };
+        const ballObj = { el: document.getElementById('ball'), x: 390, y: 215, vx: 0, vy: 0, owner: null };
+
+        let mScore = 0, rScore = 0, gameActive = false;
+        let gameMode = 'pvp'; 
+        const baseSpeed = 5.8; 
+        const botSpeed = 1.8; // BOT ANChA SEKINLASHTIRILDI (O'ta oson rejim)
+        const shotPower = 17;   
+        const friction = 0.965;  
+        const keys = {};
+
+        let coins = JSON.parse(localStorage.getItem('f_coins')) || { p1: 500, p2: 500 }; 
+        let ownedSkins = JSON.parse(localStorage.getItem('f_owned')) || { p1: ['#2980b9'], p2: ['#d35400'] };
+        let activeSkins = JSON.parse(localStorage.getItem('f_active')) || { p1: '#2980b9', p2: '#d35400' };
+
+        const skinsConfig = [
+            { name: "Steve Base VIP", color: "repeating-linear-gradient(45deg, #2980b9, #2980b9 10px, #3498db 10px, #3498db 20px)", p: "p1", cost: 100 },
+            { name: "Diamond Overlord", color: "repeating-conic-gradient(#00d2d3 0% 25%, #54a0ff 0% 50%) 50% / 10px 10px", p: "p1", cost: 450 },
+            { name: "Nether God Armor", color: "radial-gradient(circle, #2c3e50 0%, #0f171e 100%)", p: "p1", cost: 900 },
+            { name: "Zombie Immortal", color: "linear-gradient(135deg, #27ae60 0%, #1e272e 100%)", p: "p1", cost: 1500 },
+
+            { name: "Alex Base VIP", color: "repeating-linear-gradient(45deg, #d35400, #d35400 10px, #e67e22 10px, #e67e22 20px)", p: "p2", cost: 100 },
+            { name: "Creeper Emperor", color: "repeating-conic-gradient(#2ecc71 0% 25%, #27ae60 0% 50%) 50% / 8px 8px", p: "p2", cost: 450 },
+            { name: "Pure Gold Bar", color: "linear-gradient(135deg, #f1c40f 0%, #f39c12 50%, #9a7d0a 100%)", p: "p2", cost: 1000 },
+            { name: "Void Enderman", color: "radial-gradient(circle, #8e44ad 0%, #2c3e50 100%)", p: "p2", cost: 1800 }
+        ];
+
+        function updateDisplays() {
+            document.getElementById('menu-p1-coins').textContent = coins.p1;
+            document.getElementById('menu-p2-coins').textContent = coins.p2;
+            p1El.style.background = activeSkins.p1;
+            p2El.style.background = activeSkins.p2;
+            localStorage.setItem('f_coins', JSON.stringify(coins));
+            localStorage.setItem('f_owned', JSON.stringify(ownedSkins));
+            localStorage.setItem('f_active', JSON.stringify(activeSkins));
+        }
+
+        function startGameMode(mode) {
+            gameMode = mode;
+            document.getElementById('game-mode-indicator').textContent = mode === 'bot' ? "REJIM: VS BOT (NOOB BOT)" : "REJIM: 2 PLAYER (DO'ST BILAN)";
+            document.getElementById('p2-controls').style.opacity = mode === 'bot' ? "0.3" : "1";
+            document.getElementById('start-screen').style.display = 'none';
+            gameActive = true;
+            resetPositions();
+            requestAnimationFrame(update);
+        }
+
+        function backToMenu() {
+            document.getElementById('market-screen').style.display = 'none';
+            document.getElementById('admin-auth-screen').style.display = 'none';
+            document.getElementById('admin-panel-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
+            updateDisplays();
+        }
+        function openMarket() { document.getElementById('start-screen').style.display = 'none'; document.getElementById('market-screen').style.display = 'flex'; renderMarket(); }
+        function openAdminAuth() { document.getElementById('start-screen').style.display = 'none'; document.getElementById('admin-auth-screen').style.display = 'flex'; document.getElementById('admin-code-input').value = ''; }
+        
+        function checkAdminCode() {
+            if (document.getElementById('admin-code-input').value === 'somsa') {
+                document.getElementById('admin-auth-screen').style.display = 'none';
+                document.getElementById('admin-panel-screen').style.display = 'flex';
+            } else { alert("Noto'g'ri kod!"); }
+        }
+        
+        function hackCoins(player) { coins[player] += 1000; alert("+1000 Tanga berildi!"); updateDisplays(); }
+        function quitGame() { gameActive = false; mScore = 0; rScore = 0; document.getElementById('messi-score').textContent = 0; document.getElementById('ronaldo-score').textContent = 0; backToMenu(); }
+
+        function renderMarket() {
+            const p1L = document.getElementById('p1-shop-list'); const p2L = document.getElementById('p2-shop-list');
+            p1L.innerHTML = ''; p2L.innerHTML = '';
+            skinsConfig.forEach(skin => {
+                const card = document.createElement('div'); card.classList.add('skin-card');
+                let buttonText = `${skin.cost} 🪙`; 
+                let isOwned = ownedSkins[skin.p].includes(skin.color);
+                if (isOwned) { buttonText = (activeSkins[skin.p] === skin.color) ? "Kiyilgan" : "Kiyish"; }
+                card.innerHTML = `<div><span class="skin-preview" style="background:${skin.color}"></span><span style="font-size:12px; font-weight:bold;">${skin.name}</span></div>
+                                  <button class="btn ${buttonText === 'Kiyilgan' ? 'btn-gold' : (isOwned ? 'btn-blue' : '')}" style="padding:6px 12px; font-size:11px; margin:0; min-width:80px;" onclick="selectSkin('${skin.p}','${skin.color}', ${skin.cost})">${buttonText}</button>`;
+                if (skin.p === 'p1') p1L.appendChild(card); else p2L.appendChild(card);
+            });
+        }
+
+        function selectSkin(player, color, cost) {
+            if (ownedSkins[player].includes(color)) { activeSkins[player] = color; }
+            else if (coins[player] >= cost) { coins[player] -= cost; ownedSkins[player].push(color); activeSkins[player] = color; }
+            else { alert("Mablag' yetarli emas!"); return; }
+            updateDisplays(); renderMarket();
+        }
+
+        window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
+        window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+        window.addEventListener('keydown', e => {
+            if (!gameActive) return;
+            const k = e.key.toLowerCase();
+            if (k === 'f' && ballObj.owner === 'p1') kickBall('p1');
+            if (k === 'g') stealBall('p1');
+            
+            if (gameMode === 'pvp') {
+                if (k === 'm' && ballObj.owner === 'p2') kickBall('p2');
+                if (k === '/') stealBall('p2');
+            }
+        });
+
+        function kickBall(player) {
+            const currentP = player === 'p1' ? p1 : p2;
+            ballObj.vx = currentP.lastXDir * shotPower;
+            ballObj.vy = currentP.lastYDir * shotPower;
+            ballObj.owner = null;
+        }
+
+        function stealBall(stealer) {
+            const opponent = stealer === 'p1' ? 'p2' : 'p1';
+            const s = stealer === 'p1' ? p1 : p2;
+            if (ballObj.owner === opponent) {
+                // To'pni tortib olish radiusi o'ta cheklangan holatga keltirildi
+                if (Math.hypot((s.x+23) - (ballObj.x+10), (s.y+23) - (ballObj.y+10)) < 30) ballObj.owner = stealer;
+            }
+        }
+
+        function update() {
+            if (!gameActive) return;
+
+            // --- MESSI HARAKATI ---
+            let p1x = 0, p1y = 0;
+            if (keys['w']) p1y = -baseSpeed; if (keys['s']) p1y = baseSpeed;
+            if (keys['a']) p1x = -baseSpeed; if (keys['d']) p1x = baseSpeed;
+            if (p1x !== 0 || p1y !== 0) { p1.x += p1x; p1.y += p1y; let len = Math.hypot(p1x, p1y); p1.lastXDir = p1x/len; p1.lastYDir = p1y/len; }
+
+            // --- RONALDO HARAKATI (DO'ST YOKI NOOB BOT) ---
+            if (gameMode === 'pvp') {
+                let p2x = 0, p2y = 0;
+                if (keys['arrowup']) p2y = -baseSpeed; if (keys['arrowdown']) p2y = baseSpeed;
+                if (keys['arrowleft']) p2x = -baseSpeed; if (keys['arrowright']) p2x = baseSpeed;
+                if (p2x !== 0 || p2y !== 0) { p2.x += p2x; p2.y += p2y; let len = Math.hypot(p2x, p2y); p2.lastXDir = p2x/len; p2.lastYDir = p2y/len; }
+            } else {
+                // --- NOOB BOT ALGORITMI ---
+                let targetX = p2.x + 23; // Standart holatda joyida turadi
+                let targetY = p2.y + 23;
+
+                if (ballObj.owner === 'p2') {
+                    // To'p botda bo'lsa, sekingina chapga yuradi
+                    targetX = 40; targetY = 225; 
+                    if (p2.x < 400 && Math.random() < 0.03) {
+                        kickBall('p2');
+                    }
+                } 
+                else {
+                    // KUCHSIZLANTIRISH: Agar to'p maydonning chap yarmida bo'lsa, bot unga umuman yugurmaydi!
+                    if (ballObj.x > 400) {
+                        targetX = ballObj.x;
+                        targetY = ballObj.y;
+                    } else {
+                        // To'p narigi tomonda bo'lsa, shunchaki o'z uyida (himoyada) kutadi
+                        targetX = 670;
+                        targetY = 225;
+                    }
+                    
+                    // To'pni olib qo'yish masofasi minimal (faqat juda-juda yaqin kelsagina)
+                    if (Math.hypot((p2.x+23) - (ballObj.x+10), (p2.y+23) - (ballObj.y+10)) < 15) {
+                        stealBall('p2');
+                    }
+                }
+
+                let diffX = targetX - (p2.x + 23);
+                let diffY = targetY - (p2.y + 23);
+                let distance = Math.hypot(diffX, diffY);
+
+                if (distance > 10) {
+                    p2.x += (diffX / distance) * botSpeed;
+                    p2.y += (diffY / distance) * botSpeed;
+                    p2.lastXDir = diffX / distance;
+                    p2.lastYDir = diffY / distance;
+                }
+            }
+
+            // Chegaralar
+            if(p1.x < 0) p1.x = 0; if(p1.x > 754) p1.x = 754; if(p1.y < 0) p1.y = 0; if(p1.y > 404) p1.y = 404;
+            if(p2.x < 0) p2.x = 0; if(p2.x > 754) p2.x = 754; if(p2.y < 0) p2.y = 0; if(p2.y > 404) p2.y = 404;
+
+            p1Wrap.style.transform = `translate3d(${p1.x}px, ${p1.y}px, 0)`;
+            p2Wrap.style.transform = `translate3d(${p2.x}px, ${p2.y}px, 0)`;
+
+            // To'p harakati
+            if (ballObj.owner === 'p1') {
+                ballObj.x = p1.x + 23 - 10 + (p1.lastXDir * 28); ballObj.y = p1.y + 23 - 10 + (p1.lastYDir * 28);
+            } else if (ballObj.owner === 'p2') {
+                ballObj.x = p2.x + 23 - 10 + (p2.lastXDir * 28); ballObj.y = p2.y + 23 - 10 + (p2.lastYDir * 28);
+            } else {
+                ballObj.x += ballObj.vx; ballObj.y += ballObj.vy;
+                ballObj.vx *= friction; ballObj.vy *= friction;
+
+                if (ballObj.y <= 0) { ballObj.y = 0; ballObj.vy = -ballObj.vy; }
+                if (ballObj.y >= 430) { ballObj.y = 430; ballObj.vy = -ballObj.vy; }
+
+                let distP1 = Math.hypot((p1.x+23) - (ballObj.x+10), (p1.y+23) - (ballObj.y+10));
+                let distP2 = Math.hypot((p2.x+23) - (ballObj.x+10), (p2.y+23) - (ballObj.y+10));
+                
+                if (distP1 < 32) ballObj.owner = 'p1';
+                else if (distP2 < 18) ballObj.owner = 'p2'; // Botning avto-olib ketishi ham qiyinlashtirildi
+            }
+
+            // GOL
+            if (ballObj.x <= 0) {
+                if (ballObj.y >= 150 && ballObj.y <= 295) { 
+                    rScore++; coins.p2 += 45; 
+                    document.getElementById('ronaldo-score').textContent = rScore; 
+                    triggerGoalEffect(); resetPositions(); checkGameOver(); 
+                } else { ballObj.x = 0; ballObj.vx = -ballObj.vx; }
+            }
+            if (ballObj.x >= 780) {
+                if (ballObj.y >= 150 && ballObj.y <= 295) { 
+                    mScore++; coins.p1 += 45; 
+                    document.getElementById('messi-score').textContent = mScore; 
+                    triggerGoalEffect(); resetPositions(); checkGameOver(); 
+                } else { ballObj.x = 780; ballObj.vx = -ballObj.vx; }
+            }
+
+            ballObj.el.style.transform = `translate3d(${ballObj.x}px, ${ballObj.y}px, 0)`;
+
+            if (gameActive) requestAnimationFrame(update);
+        }
+
+        function triggerGoalEffect() {
+            const flash = document.getElementById('goal-flash');
+            flash.style.display = 'flex';
+            setTimeout(() => { flash.style.display = 'none'; }, 600);
+        }
+
+        function checkGameOver() {
+            if (mScore >= 10 || rScore >= 10) {
+                gameActive = false;
+                const win = mScore >= 10 ? "MESSI" : "RONALDO";
+                coins[mScore >= 10 ? 'p1' : 'p2'] += 200; 
+                alert(`👑 MARRAGA ERSHILDI: ${win} G'ALABA QOZONDI (+200 COINS)!`);
+                quitGame();
+            }
+        }
+
+        function resetPositions() {
+            ballObj.x = 390; ballObj.y = 215; ballObj.vx = 0; ballObj.vy = 0; ballObj.owner = null;
+            p1.x = 150; p1.y = 205; p1.lastXDir = 1; p1.lastYDir = 0;
+            p2.x = 610; p2.y = 205; p2.lastXDir = -1; p2.lastYDir = 0;
+            updateDisplays();
+        }
+
+        updateDisplays();
+    </script>
+</body>
+</html>
